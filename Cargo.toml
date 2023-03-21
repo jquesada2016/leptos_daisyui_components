@@ -1,0 +1,5 @@
+[workspace]
+members = ["components", "macros"]
+
+[patch.crates-io]
+leptos = { git = "https:github.com/jquesada2016/leptos", branch = "dyn_class" }
