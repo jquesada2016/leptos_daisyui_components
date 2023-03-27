@@ -29,10 +29,48 @@ impl Size {
   }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum TextInputType {
+  Text,
+  Number,
+  Color,
+  Date,
+  DateTimeLocal,
+  Email,
+  Month,
+  Password,
+  Search,
+  Tel,
+  Time,
+  Url,
+  Week,
+}
+
+impl TextInputType {
+  fn into_type_str(self) -> &'static str {
+    match self {
+      Self::Text => "text",
+      Self::Number => "number",
+      Self::Color => "color",
+      Self::Date => "date",
+      Self::DateTimeLocal => "datetime-local",
+      Self::Email => "email",
+      Self::Month => "month",
+      Self::Password => "password",
+      Self::Search => "search",
+      Self::Tel => "tel",
+      Self::Time => "time",
+      Self::Url => "url",
+      Self::Week => "week",
+    }
+  }
+}
+
 #[component]
 pub fn TextInput(
   cx: Scope,
   #[prop(optional, into)] id: Option<String>,
+  #[prop(optional, into)] type_: Option<TextInputType>,
   #[prop(optional, into)] name: Option<String>,
   #[prop(optional, into)] label: Option<MaybeSignal<String>>,
   #[prop(optional, into)] label_alt: Option<MaybeSignal<String>>,
@@ -151,7 +189,7 @@ pub fn TextInput(
         ref=input_ref_local
         id=id
         name=name
-        type="text"
+        type=type_.map(|type_| type_.into_type_str())
         class="input input-bordered w-full max-w-xs"
         class:input-bordered=bordered
         class:input-ghost=ghost
