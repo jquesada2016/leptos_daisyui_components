@@ -3,10 +3,12 @@ use crate::{
   Size,
 };
 use leptos::*;
+use wasm_bindgen::JsCast;
 
 impl Color {
   const fn into_text_input_class(self) -> &'static str {
     match self {
+      Self::None => "",
       Self::Primary => const_format::concatcp!["input-", Color::PRIMARY],
       Self::Secondary => const_format::concatcp!["input-", Color::SECONDARY],
       Self::Accent => const_format::concatcp!["input-", Color::ACCENT],
@@ -25,6 +27,7 @@ impl Size {
       Size::Medium => const_format::concatcp!["input-", "md"],
       Size::Small => const_format::concatcp!["input-", "sm"],
       Size::ExtraSmall => const_format::concatcp!["input-", "xs"],
+      Self::None => "",
     }
   }
 }
@@ -85,6 +88,8 @@ pub fn TextInput(
   #[prop(optional, into)] ghost: MaybeSignal<bool>,
   #[prop(optional, into)] input_ref: Option<NodeRef<html::Input>>,
   #[prop(optional)] on_value: Option<SignalSetter<String>>,
+  #[prop(optional)] on_value_number: Option<SignalSetter<f64>>,
+  #[prop(optional)] on_value_date: Option<SignalSetter<Option<js_sys::Date>>>,
 ) -> impl IntoView {
   let input_ref_local = create_node_ref::<html::Input>(cx);
 
@@ -130,6 +135,32 @@ pub fn TextInput(
         let value = event_target_value(&e);
 
         on_value(value);
+      });
+    });
+  }
+
+  if let Some(on_value_number) = on_value_number {
+    input_ref_local.on_load(cx, move |input| {
+      input.on(ev::input, move |e| {
+        let el = event_target::<web_sys::HtmlInputElement>(&e);
+
+        on_value_number(el.value_as_number())
+      });
+    });
+  }
+
+  if let Some(on_value_date) = on_value_date {
+    input_ref_local.on_load(cx, move |input| {
+      input.on(ev::input, move |e| {
+        let el = event_target::<web_sys::HtmlInputElement>(&e);
+
+        let date = js_sys::Reflect::get(&el, &"valueAsDate".into())
+          .unwrap()
+          .unchecked_into::<js_sys::Date>();
+
+        let date = date.is_truthy().then_some(date);
+
+        on_value_date(date);
       });
     });
   }

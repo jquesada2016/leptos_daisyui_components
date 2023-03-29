@@ -15,7 +15,7 @@ pub fn include_component_classes(
   }
 
   let mut file = std::io::BufWriter::new(
-    std::fs::File::create("./daisy_ui_component_classes.txt").unwrap_or_else(
+    std::fs::File::create("./daisyui_component_classes.txt").unwrap_or_else(
       |err| {
         abort_call_site!(
           "failed to create `./daisy_ui_component_classes.txt` file, \

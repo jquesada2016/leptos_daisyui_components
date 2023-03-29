@@ -11,15 +11,28 @@ pub enum ButtonColor {
   Glass,
 }
 
+impl Default for ButtonColor {
+  fn default() -> Self {
+    Self::Color(Default::default())
+  }
+}
+
 impl From<Color> for ButtonColor {
   fn from(color: Color) -> Self {
     Self::Color(color)
   }
 }
 
+impl From<Color> for MaybeSignal<ButtonColor> {
+  fn from(color: Color) -> Self {
+    ButtonColor::from(color).into()
+  }
+}
+
 impl ButtonColor {
   fn into_btn_color_class(self) -> &'static str {
     match self {
+      Self::Color(Color::None) => "",
       Self::Color(Color::Primary) => {
         const_format::concatcp!["btn-", Color::PRIMARY]
       }
@@ -44,8 +57,10 @@ impl ButtonColor {
   }
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Default, Debug, Hash, PartialEq, Eq)]
 pub enum ButtonWidth {
+  #[default]
+  None,
   Wide,
   Block,
 }
@@ -53,14 +68,17 @@ pub enum ButtonWidth {
 impl ButtonWidth {
   fn into_btn_width_class(self) -> &'static str {
     match self {
-      ButtonWidth::Wide => "btn-wide",
-      ButtonWidth::Block => "btn-block",
+      Self::None => "",
+      Self::Wide => "btn-wide",
+      Self::Block => "btn-block",
     }
   }
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Default, Debug, Hash, PartialEq, Eq)]
 pub enum ButtonShape {
+  #[default]
+  None,
   Square,
   Circle,
 }
@@ -68,8 +86,9 @@ pub enum ButtonShape {
 impl ButtonShape {
   fn into_btn_shape_class(self) -> &'static str {
     match self {
-      ButtonShape::Square => "btn-square",
-      ButtonShape::Circle => "btn-circle",
+      Self::None => "",
+      Self::Square => "btn-square",
+      Self::Circle => "btn-circle",
     }
   }
 }
@@ -84,6 +103,7 @@ pub enum ButtonKind {
 impl Size {
   fn into_btn_size_class(self) -> &'static str {
     match self {
+      Self::None => "",
       Size::ExtraSmall => const_format::concatcp!["btn-", Size::EXTRASMALL],
       Size::Small => const_format::concatcp!["btn-", Size::SMALL],
       Size::Medium => const_format::concatcp!["btn-", Size::MEDIUM],
@@ -96,15 +116,15 @@ impl Size {
 pub fn Button(
   cx: Scope,
   #[prop(optional, into)] kind: ButtonKind,
-  #[prop(optional, into)] color: Option<MaybeSignal<Option<ButtonColor>>>,
-  #[prop(optional, into)] size: Option<MaybeSignal<Option<Size>>>,
+  #[prop(optional, into)] color: Option<MaybeSignal<ButtonColor>>,
+  #[prop(optional, into)] size: Option<MaybeSignal<Size>>,
   #[prop(optional, into)] outlined: MaybeSignal<bool>,
   #[prop(optional, into)] active: MaybeSignal<bool>,
   #[prop(optional, into)] disabled: MaybeSignal<bool>,
   #[prop(optional, into)] loading: MaybeSignal<bool>,
   #[prop(optional, into)] no_animation: MaybeSignal<bool>,
-  #[prop(optional, into)] width: Option<MaybeSignal<Option<ButtonWidth>>>,
-  #[prop(optional, into)] shape: Option<MaybeSignal<Option<ButtonShape>>>,
+  #[prop(optional, into)] width: Option<MaybeSignal<ButtonWidth>>,
+  #[prop(optional, into)] shape: Option<MaybeSignal<ButtonShape>>,
   #[prop(optional, into)] button_ref: Option<NodeRef<html::AnyElement>>,
   #[prop(optional, into)] on_click: Option<SignalSetter<()>>,
   #[prop(optional)] children: Option<Children>,
@@ -125,25 +145,25 @@ pub fn Button(
 
   if let Some(color) = color {
     btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || color().map(|c| c.into_btn_color_class()));
+      btn.dyn_classes(move || Some(color().into_btn_color_class()));
     });
   }
 
   if let Some(size) = size {
     btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || size().map(|s| s.into_btn_size_class()));
+      btn.dyn_classes(move || Some(size().into_btn_size_class()));
     });
   }
 
   if let Some(width) = width {
     btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || width().map(|w| w.into_btn_width_class()));
+      btn.dyn_classes(move || Some(width().into_btn_width_class()));
     });
   }
 
   if let Some(shape) = shape {
     btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || shape().map(|w| w.into_btn_shape_class()));
+      btn.dyn_classes(move || Some(shape().into_btn_shape_class()));
     });
   }
 

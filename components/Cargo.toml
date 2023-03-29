@@ -1,5 +1,5 @@
 [package]
-name = "leptos_daisy_ui_components"
+name = "leptos_daisyui_components"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,12 +7,15 @@ edition = "2021"
 
 [features]
 default = ["text-input"]
-text-input = ["leptos_daisy_ui_macros/text-input"]
+text-input = ["leptos_daisyui_macros/text-input"]
 
 [dependencies]
 const_format = { version = "0.2", features = ["fmt"] }
 getrandom = { version = "0.2", features = ["js"] }
+js-sys = "0.3"
 leptos = "0.2"
-leptos_daisy_ui_macros = { path = "../macros" }
+leptos_daisyui_macros = { path = "../macros" }
 leptos_tea = { git = "https://github.com/jquesada2016/leptos-tea" }
 rand = "0.8"
+wasm-bindgen = "0.2"
+web-sys = "0.3"

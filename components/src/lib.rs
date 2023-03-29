@@ -4,11 +4,13 @@ pub mod button;
 pub mod text_input;
 
 pub use button::*;
-pub use leptos_daisy_ui_macros::include_component_classes;
+pub use leptos_daisyui_macros::include_component_classes;
 pub use text_input::*;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq, Hash)]
 pub enum Color {
+  #[default]
+  None,
   Primary,
   Secondary,
   Accent,
@@ -28,8 +30,10 @@ impl Color {
   const ERROR: &str = "error";
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Size {
+  #[default]
+  None,
   ExtraSmall,
   Small,
   Medium,
