@@ -84,12 +84,14 @@ pub fn TextInput(
   #[prop(optional, into)] focus: Option<MaybeSignal<bool>>,
   #[prop(optional, into)] bordered: MaybeSignal<bool>,
   #[prop(optional, into)] color: Option<MaybeSignal<Option<Color>>>,
-  #[prop(optional, into)] size: Option<MaybeSignal<Option<Size>>>,
+  #[prop(optional, into)] size: Option<MaybeSignal<Size>>,
   #[prop(optional, into)] ghost: MaybeSignal<bool>,
   #[prop(optional, into)] input_ref: Option<NodeRef<html::Input>>,
   #[prop(optional)] on_value: Option<SignalSetter<String>>,
   #[prop(optional)] on_value_number: Option<SignalSetter<f64>>,
   #[prop(optional)] on_value_date: Option<SignalSetter<Option<js_sys::Date>>>,
+  #[prop(optional)] on_focus: Option<SignalSetter<()>>,
+  #[prop(optional)] on_blur: Option<SignalSetter<()>>,
 ) -> impl IntoView {
   let input_ref_local = create_node_ref::<html::Input>(cx);
 
@@ -125,7 +127,7 @@ pub fn TextInput(
 
   if let Some(size) = size {
     input_ref_local.on_load(cx, move |input| {
-      input.dyn_classes(move || size().map(|s| s.into_text_input_size()));
+      input.dyn_classes(move || Some(size().into_text_input_size()));
     });
   }
 
@@ -162,6 +164,18 @@ pub fn TextInput(
 
         on_value_date(date);
       });
+    });
+  }
+
+  if let Some(on_focus) = on_focus {
+    input_ref_local.on_load(cx, move |input| {
+      input.on(ev::focus, move |_| on_focus(()));
+    });
+  }
+
+  if let Some(on_blur) = on_blur {
+    input_ref_local.on_load(cx, move |input| {
+      input.on(ev::blur, move |_| on_blur(()));
     });
   }
 
