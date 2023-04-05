@@ -83,7 +83,7 @@ pub fn TextInput(
   #[prop(optional, into)] value: Option<MaybeSignal<String>>,
   #[prop(optional, into)] focus: Option<MaybeSignal<bool>>,
   #[prop(optional, into)] bordered: MaybeSignal<bool>,
-  #[prop(optional, into)] color: Option<MaybeSignal<Option<Color>>>,
+  #[prop(optional, into)] color: Option<MaybeSignal<Color>>,
   #[prop(optional, into)] size: Option<MaybeSignal<Size>>,
   #[prop(optional, into)] ghost: MaybeSignal<bool>,
   #[prop(optional, into)] input_ref: Option<NodeRef<html::Input>>,
@@ -121,13 +121,17 @@ pub fn TextInput(
 
   if let Some(color) = color {
     input_ref_local.on_load(cx, move |input| {
-      input.dyn_classes(move || color().map(|c| c.into_text_input_class()));
+      queue_microtask(move || {
+        input.dyn_classes(move || Some(color().into_text_input_class()));
+      });
     });
   }
 
   if let Some(size) = size {
     input_ref_local.on_load(cx, move |input| {
-      input.dyn_classes(move || Some(size().into_text_input_size()));
+      queue_microtask(move || {
+        input.dyn_classes(move || Some(size().into_text_input_size()));
+      });
     });
   }
 
