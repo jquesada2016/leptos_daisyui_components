@@ -177,7 +177,7 @@ pub fn Button(
     .node_ref(btn_ref_local)
     .class("btn", true)
     .class("btn-outline", outlined)
-    .class("bgn-ghost", ghost)
+    .class("btn-ghost", ghost)
     .class("loading", loading)
     .class("btn-active", active)
     .class("no-animation", no_animation)
