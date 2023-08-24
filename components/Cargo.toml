@@ -10,12 +10,12 @@ default = ["text-input"]
 text-input = ["leptos_daisyui_macros/text-input"]
 
 [dependencies]
-const_format = { version = "0.2", features = ["fmt"] }
+const_format = "0.2"
 getrandom = { version = "0.2", features = ["js"] }
 js-sys = "0.3"
-leptos = "0.2"
+leptos = "0.5.0-beta"
 leptos_daisyui_macros = { path = "../macros" }
-leptos_tea = { git = "https://github.com/jquesada2016/leptos-tea" }
+leptos_tea = "0.6.0-beta"
 rand = "0.8"
 wasm-bindgen = "0.2"
 web-sys = "0.3"

@@ -1,5 +1,3 @@
-#![feature(const_mut_refs)]
-
 pub mod button;
 pub mod text_input;
 

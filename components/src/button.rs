@@ -1,7 +1,4 @@
-use crate::{
-  Color,
-  Size,
-};
+use crate::{Color, Size};
 use leptos::*;
 use std::borrow::Cow;
 
@@ -114,7 +111,6 @@ impl Size {
 
 #[component]
 pub fn Button(
-  cx: Scope,
   #[prop(optional, into)] kind: ButtonKind,
   #[prop(optional, into)] color: Option<MaybeSignal<ButtonColor>>,
   #[prop(optional, into)] size: Option<MaybeSignal<Size>>,
@@ -130,47 +126,47 @@ pub fn Button(
   #[prop(optional, into)] on_click: Option<SignalSetter<()>>,
   #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
-  let btn_ref_local = create_node_ref(cx);
+  let btn_ref_local = create_node_ref();
 
   if let Some(on_click) = on_click {
-    btn_ref_local.on_load(cx, move |btn: HtmlElement<html::AnyElement>| {
-      btn.on(ev::click, move |_| on_click(()));
+    btn_ref_local.on_load(move |btn: HtmlElement<html::AnyElement>| {
+      btn.on(ev::click, move |_| on_click.set(()));
     });
   }
 
   if let Some(ref_) = button_ref {
-    btn_ref_local.on_load(cx, move |btn| {
+    btn_ref_local.on_load(move |btn| {
       ref_.load(&btn);
     });
   }
 
   if let Some(color) = color {
-    btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || Some(color().into_btn_color_class()));
+    btn_ref_local.on_load(move |btn| {
+      btn.dyn_classes(move || Some(color.get().into_btn_color_class()));
     });
   }
 
   if let Some(size) = size {
-    btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || Some(size().into_btn_size_class()));
+    btn_ref_local.on_load(move |btn| {
+      btn.dyn_classes(move || Some(size.get().into_btn_size_class()));
     });
   }
 
   if let Some(width) = width {
-    btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || Some(width().into_btn_width_class()));
+    btn_ref_local.on_load(move |btn| {
+      btn.dyn_classes(move || Some(width.get().into_btn_width_class()));
     });
   }
 
   if let Some(shape) = shape {
-    btn_ref_local.on_load(cx, move |btn| {
-      btn.dyn_classes(move || Some(shape().into_btn_shape_class()));
+    btn_ref_local.on_load(move |btn| {
+      btn.dyn_classes(move || Some(shape.get().into_btn_shape_class()));
     });
   }
 
   let btn = match kind {
-    ButtonKind::Button => html::button(cx).into_any(),
-    ButtonKind::Link(href) => html::a(cx).attr(href, true).into_any(),
+    ButtonKind::Button => html::button().into_any(),
+    ButtonKind::Link(href) => html::a().attr(href, true).into_any(),
   };
 
   btn
@@ -183,5 +179,5 @@ pub fn Button(
     .class("no-animation", no_animation)
     .class("btn-disabled", disabled)
     .attr("disabled", disabled)
-    .child(children.map(|child| child(cx)))
+    .child(children.map(|child| child()))
 }

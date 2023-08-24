@@ -1,7 +1,4 @@
-use crate::{
-  Color,
-  Size,
-};
+use crate::{Color, Size};
 use leptos::*;
 use wasm_bindgen::JsCast;
 
@@ -71,7 +68,6 @@ impl TextInputType {
 
 #[component]
 pub fn TextInput(
-  cx: Scope,
   #[prop(optional, into)] id: Option<String>,
   #[prop(optional, into)] type_: Option<TextInputType>,
   #[prop(optional, into)] name: Option<String>,
@@ -81,6 +77,8 @@ pub fn TextInput(
   #[prop(optional, into)] helper_alt: Option<MaybeSignal<String>>,
   #[prop(optional, into)] placeholder: Option<MaybeSignal<String>>,
   #[prop(optional, into)] value: Option<MaybeSignal<String>>,
+  #[prop(optional, into)] value_as_date: Option<MaybeSignal<js_sys::Date>>,
+
   #[prop(optional, into)] focus: Option<MaybeSignal<bool>>,
   #[prop(optional, into)] bordered: MaybeSignal<bool>,
   #[prop(optional, into)] color: Option<MaybeSignal<Color>>,
@@ -93,20 +91,20 @@ pub fn TextInput(
   #[prop(optional)] on_focus: Option<SignalSetter<()>>,
   #[prop(optional)] on_blur: Option<SignalSetter<()>>,
 ) -> impl IntoView {
-  let input_ref_local = create_node_ref::<html::Input>(cx);
+  let input_ref_local = create_node_ref::<html::Input>();
 
   let id = id.unwrap_or_else(|| rand::random::<usize>().to_string());
 
   if let Some(input_ref) = input_ref {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       input_ref.load(&input);
     });
   }
 
   if let Some(focus) = focus {
-    input_ref_local.on_load(cx, move |input| {
-      create_effect(cx, move |later_run| {
-        if focus() {
+    input_ref_local.on_load(move |input| {
+      create_effect(move |later_run| {
+        if focus.get() {
           if later_run.is_none() {
             input.clone().on_mount(|input| {
               let _ = input.focus();
@@ -115,48 +113,48 @@ pub fn TextInput(
 
           let _ = input.focus();
         }
-      })
+      });
     });
   }
 
   if let Some(color) = color {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       queue_microtask(move || {
-        input.dyn_classes(move || Some(color().into_text_input_class()));
+        input.dyn_classes(move || Some(color.get().into_text_input_class()));
       });
     });
   }
 
   if let Some(size) = size {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       queue_microtask(move || {
-        input.dyn_classes(move || Some(size().into_text_input_size()));
+        input.dyn_classes(move || Some(size.get().into_text_input_size()));
       });
     });
   }
 
   if let Some(on_value) = on_value {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       input.on(ev::input, move |e| {
         let value = event_target_value(&e);
 
-        on_value(value);
+        on_value.set(value);
       });
     });
   }
 
   if let Some(on_value_number) = on_value_number {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       input.on(ev::input, move |e| {
         let el = event_target::<web_sys::HtmlInputElement>(&e);
 
-        on_value_number(el.value_as_number())
+        on_value_number.set(el.value_as_number())
       });
     });
   }
 
   if let Some(on_value_date) = on_value_date {
-    input_ref_local.on_load(cx, move |input| {
+    input_ref_local.on_load(move |input| {
       input.on(ev::input, move |e| {
         let el = event_target::<web_sys::HtmlInputElement>(&e);
 
@@ -166,20 +164,20 @@ pub fn TextInput(
 
         let date = date.is_truthy().then_some(date);
 
-        on_value_date(date);
+        on_value_date.set(date);
       });
     });
   }
 
   if let Some(on_focus) = on_focus {
-    input_ref_local.on_load(cx, move |input| {
-      input.on(ev::focus, move |_| on_focus(()));
+    input_ref_local.on_load(move |input| {
+      input.on(ev::focus, move |_| on_focus.set(()));
     });
   }
 
   if let Some(on_blur) = on_blur {
-    input_ref_local.on_load(cx, move |input| {
-      input.on(ev::blur, move |_| on_blur(()));
+    input_ref_local.on_load(move |input| {
+      input.on(ev::blur, move |_| on_blur.set(()));
     });
   }
 
@@ -188,17 +186,17 @@ pub fn TextInput(
 
     (label.is_some() || label_alt.is_some()).then(|| {
       let label = label.map(|label| {
-        view! { cx,
+        view! {
           <span class="label-text">{label}</span>
         }
       });
       let label_alt = label_alt.map(|label_alt| {
-        view! { cx,
+        view! {
           <span class="label-text-alt">{label_alt}</span>
         }
       });
 
-      view! { cx,
+      view! {
         <label class="label" for=id>
           {label}
           {label_alt}
@@ -212,17 +210,17 @@ pub fn TextInput(
 
     (helper.is_some() || helper_alt.is_some()).then(|| {
       let helper = helper.map(|helper| {
-        view! { cx,
+        view! {
           <span class="label-text">{helper}</span>
         }
       });
       let helper_alt = helper_alt.map(|helper_alt| {
-        view! { cx,
+        view! {
           <span class="label-text-alt">{helper_alt}</span>
         }
       });
 
-      view! { cx,
+      view! {
         <label class="label" for=id>
           {helper}
           {helper_alt}
@@ -231,7 +229,22 @@ pub fn TextInput(
     })
   };
 
-  view! { cx,
+  if let Some(value_as_date) = value_as_date {
+    input_ref_local.on_load(move |input| {
+      input.on_mount(move |input| {
+        create_effect(move |_| {
+          js_sys::Reflect::set(
+            &input,
+            &"valueAsDate".into(),
+            &value_as_date.get(),
+          )
+          .unwrap();
+        });
+      });
+    });
+  }
+
+  view! {
     <div class="form-control w-full max-w-xs">
       {label}
       <input
@@ -242,7 +255,7 @@ pub fn TextInput(
         class="input input-bordered w-full max-w-xs"
         class:input-bordered=bordered
         class:input-ghost=ghost
-        placeholder=placeholder.map(|placeholder| placeholder())
+        placeholder=placeholder.map(|placeholder| placeholder.get())
         prop:value=value.unwrap_or_default()
       />
       {helper}
